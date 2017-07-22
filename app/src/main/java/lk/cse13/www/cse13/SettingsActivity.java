@@ -1,4 +1,5 @@
 package lk.cse13.www.cse13;
+
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
@@ -46,7 +47,7 @@ import static android.Manifest.permission.READ_CONTACTS;
 import static android.R.string.cancel;
 import static android.provider.Telephony.Mms.Part.FILENAME;
 
-public class LoginActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     private EditText indexbox;
     private EditText passwordbox;
@@ -68,31 +69,25 @@ public class LoginActivity extends AppCompatActivity {
 
 
         saveLoginButton.setOnClickListener(
-                new View.OnClickListener()
-                {
-                    public void onClick(View view)
-                    {
+                new View.OnClickListener() {
+                    public void onClick(View view) {
                         String index = indexbox.getText().toString();
                         String password = passwordbox.getText().toString();
-                        writeToFile(index,"ind");
-                        writeToFile(password,"psd");
-
-                        Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                        i.putExtra("index",index);
-                        i.putExtra("password",password);
-                        startActivity(i);
+                        writeToFile(index, "ind");
+                        writeToFile(password, "psd");
+                        finish();
+//                        Intent i = new Intent(getApplicationContext(), MainActivity.class);
+//                        startActivity(i);
                     }
                 });
 
         clearAll.setOnClickListener(
-                new View.OnClickListener()
-                {
-                    public void onClick(View view)
-                    {
+                new View.OnClickListener() {
+                    public void onClick(View view) {
                         indexbox.setText("");
                         passwordbox.setText("");
-                        writeToFile("","ind");
-                        writeToFile("","psd");
+                        writeToFile("", "ind");
+                        writeToFile("", "psd");
                     }
                 });
     }
@@ -103,8 +98,7 @@ public class LoginActivity extends AppCompatActivity {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(getApplicationContext().openFileOutput(file, Context.MODE_PRIVATE));
             outputStreamWriter.write(data);
             outputStreamWriter.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
 //            Log.e("Exception", "File write failed: " + e.toString());
         }
     }
@@ -116,21 +110,20 @@ public class LoginActivity extends AppCompatActivity {
         try {
             InputStream inputStream = getApplicationContext().openFileInput(file);
 
-            if ( inputStream != null ) {
+            if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
                 BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
                 String receiveString = "";
                 StringBuilder stringBuilder = new StringBuilder();
 
-                while ( (receiveString = bufferedReader.readLine()) != null ) {
+                while ((receiveString = bufferedReader.readLine()) != null) {
                     stringBuilder.append(receiveString);
                 }
 
                 inputStream.close();
                 ret = stringBuilder.toString();
             }
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
 //            Log.e("Exception", "File not found: " + e.toString());
         } catch (IOException e) {
 //            Log.e("Exception", "Can not read file: " + e.toString());

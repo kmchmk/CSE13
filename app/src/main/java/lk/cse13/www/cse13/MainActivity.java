@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.webkit.WebChromeClient;
@@ -20,10 +21,16 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EncodingUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
 
 public class MainActivity extends AppCompatActivity {
@@ -35,50 +42,39 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        webview = (WebView) findViewById(R.id.webView);
-
-        webview.setWebViewClient(new MyBrowser());
-        webview.setWebChromeClient(new WebChromeClient() {
-            private ProgressDialog mProgress;
-
+        FloatingActionButton settingsfb = (FloatingActionButton) findViewById(R.id.settingsfb);
+        settingsfb.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onProgressChanged(WebView view, int progress) {
-                if (mProgress == null) {
-                    mProgress = new ProgressDialog(MainActivity.this);
-                    mProgress.show();
-                }
-                mProgress.setMessage("Loading");
-                if (progress == 100) {
-                    mProgress.dismiss();
-                    mProgress = null;
-                }
+            public void onClick(View view) {
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(i);
             }
         });
 
-
+        webview = (WebView) findViewById(R.id.webView);
+        webview.setWebViewClient(new MyBrowser());
+        webview.setWebChromeClient(new MyChromeBrowser());
         webview.getSettings().setLoadsImagesAutomatically(true);
         webview.getSettings().setJavaScriptEnabled(true);
         webview.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
-        String index = getIntent().getStringExtra("index");
-        String password = getIntent().getStringExtra("password");
 
-        String html = "<!DOCTYPE html>\n" +
-                "<html>\n" +
-                "<body onload='document.frm1.submit()'>\n" +
-                "<form action='http://www.cse13.lk/ctrl/setSession.php' method='post' name='frm1'>\n" +
-                "  <input type='hidden' name='index' value='"+index+"'><br>\n" +
-                "  <input type='hidden' name='pw' value='"+password+"'><br>\n" +
-                "</form>\n" +
-                "</body>\n" +
-                "</html>";
-        MainActivity.webview.loadData(html, "text/html", "UTF-8");
+        login();
+        new Updates().execute();
 
+    }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        login();
+    }
 
-new Updates().execute();
-
+    private void login() {
+        String index = readFromFile("ind");
+        String password = readFromFile("psd");
+        String postData = "index=" + index + "&pw=" + password;
+        webview.postUrl("http://www.cse13.lk/ctrl/setSession.php", EncodingUtils.getBytes(postData, "BASE64"));
     }
 
     private class MyBrowser extends WebViewClient {
@@ -94,12 +90,29 @@ new Updates().execute();
 
     }
 
+    private class MyChromeBrowser extends WebChromeClient {
+        private ProgressDialog mProgress;
+
+        @Override
+        public void onProgressChanged(WebView view, int progress) {
+            if (mProgress == null) {
+                mProgress = new ProgressDialog(MainActivity.this);
+                mProgress.show();
+            }
+            mProgress.setMessage("Loading");
+            if (progress == 100) {
+                mProgress.dismiss();
+                mProgress = null;
+            }
+        }
+    }
+
 
     class Updates extends AsyncTask<String, Void, String> {
 
         @Override
         protected String doInBackground(String[] params) {
-            int thisAppVesion = 0;//change this everytime updating the app
+            int thisAppVesion = 1;//change this everytime updating the app
             String versionURL = "http://13.58.202.127/cse13android/version.php";
             try {
                 HttpClient httpclient = new DefaultHttpClient();
@@ -152,7 +165,7 @@ new Updates().execute();
                 }
             }
 
-            if(message=="no_internet"){
+            if (message == "no_internet") {
                 MainActivity.webview.loadUrl("about:blank");
                 AlertDialog.Builder dlgAlert = new AlertDialog.Builder(MainActivity.this);
                 dlgAlert.setTitle("No internet connection!");
@@ -168,4 +181,32 @@ new Updates().execute();
         }
     }
 
+    private String readFromFile(String file) {
+
+        String ret = "";
+
+        try {
+            InputStream inputStream = getApplicationContext().openFileInput(file);
+
+            if (inputStream != null) {
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                String receiveString = "";
+                StringBuilder stringBuilder = new StringBuilder();
+
+                while ((receiveString = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(receiveString);
+                }
+
+                inputStream.close();
+                ret = stringBuilder.toString();
+            }
+        } catch (FileNotFoundException e) {
+//            Log.e("Exception", "File not found: " + e.toString());
+        } catch (IOException e) {
+//            Log.e("Exception", "Can not read file: " + e.toString());
+        }
+
+        return ret;
+    }
 }
