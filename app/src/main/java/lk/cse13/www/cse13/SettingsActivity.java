@@ -63,7 +63,14 @@ public class SettingsActivity extends AppCompatActivity {
         Button saveLoginButton = (Button) findViewById(R.id.save_and_login_button);
         Button clearAll = (Button) findViewById(R.id.clear_all);
 
-
+        Bundle b = getIntent().getExtras();
+        if(b != null) {
+           String msg = b.getString("msg");
+            if(msg.equals("error")) {
+                TextView errorMsg = (TextView) findViewById(R.id.errorMsg);
+                errorMsg.setText("Invalid username and password. Please try again.");
+            }
+        }
         indexbox.setText(readFromFile("ind"));
         passwordbox.setText(readFromFile("psd"));
 
@@ -76,8 +83,6 @@ public class SettingsActivity extends AppCompatActivity {
                         writeToFile(index, "ind");
                         writeToFile(password, "psd");
                         finish();
-//                        Intent i = new Intent(getApplicationContext(), MainActivity.class);
-//                        startActivity(i);
                     }
                 });
 

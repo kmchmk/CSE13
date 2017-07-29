@@ -5,6 +5,8 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,6 +16,7 @@ import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -33,9 +36,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 
+
 public class MainActivity extends AppCompatActivity {
     public static WebView webview;
-    public static String url = "www.cse13.lk";
+    public static FloatingActionButton loggingfb;
+    public static Boolean loggedIn = false;
+    public static Boolean tryingToLogin = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +56,20 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
         });
-
+        loggingfb = (FloatingActionButton) findViewById(R.id.loggingfb);
+        loggingfb.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(loggedIn){
+                    logout();
+                    loggedIn = false;
+                }
+                else{
+                    login();
+                    loggedIn = true;
+                }
+            }
+        });
         webview = (WebView) findViewById(R.id.webView);
         webview.setWebViewClient(new MyBrowser());
         webview.setWebChromeClient(new MyChromeBrowser());
@@ -59,28 +78,71 @@ public class MainActivity extends AppCompatActivity {
         webview.setScrollBarStyle(View.SCROLLBARS_INSIDE_OVERLAY);
 
 
-        login();
+        webview.loadUrl("http://www.cse13.lk/ctrl/signOut.php");
+        loggingfb.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+        loggedIn = false;
         new Updates().execute();
 
     }
-
     @Override
     protected void onRestart() {
         super.onRestart();
-        login();
+        webview.loadUrl("http://www.cse13.lk");
+        if(loggedIn){
+            loggingfb.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+        }
+        else {
+            loggingfb.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+        }
+
     }
 
     private void login() {
         String index = readFromFile("ind");
         String password = readFromFile("psd");
         String postData = "index=" + index + "&pw=" + password;
+        tryingToLogin = true;
         webview.postUrl("http://www.cse13.lk/ctrl/setSession.php", EncodingUtils.getBytes(postData, "BASE64"));
+        loggingfb.setBackgroundTintList(ColorStateList.valueOf(Color.GREEN));
+    }
+    private void logout() {
+        webview.loadUrl("http://www.cse13.lk/ctrl/signOut.php");
+        //Colour red is handled in browser
     }
 
     private class MyBrowser extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if (Uri.parse(url).getHost().equals(MainActivity.url)) {
+            //Toast.makeText(getApplicationContext(),url,Toast.LENGTH_LONG).show();
+            if(url.equals("http://www.cse13.lk/signin.php")){
+                loggingfb.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                loggedIn = false;
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                Bundle b = new Bundle();
+                b.putString("msg", "none");
+                i.putExtras(b);
+                startActivity(i);
+            }
+            else if(url.equals("http://www.cse13.lk/signin.php?msg=error")){
+                loggingfb.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                loggedIn = false;
+                Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
+                Bundle b = new Bundle();
+                b.putString("msg", "error");
+                i.putExtras(b);
+                startActivity(i);
+            }
+
+            else if(url.equals("http://www.cse13.lk/ctrl/signOut.php")){
+                loggingfb.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                loggedIn = false;
+            }
+            else if(url.equals("http://www.cse13.lk/index.php") && tryingToLogin){
+                loggingfb.setBackgroundTintList(ColorStateList.valueOf(Color.RED));
+                loggedIn = false;
+                tryingToLogin = false;
+            }
+            if (Uri.parse(url).getHost().equals("www.cse13.lk")) {
                 return false;
             } else {
                 view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
@@ -112,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(String[] params) {
-            int thisAppVesion = 1;//change this everytime updating the app
+            int thisAppVesion = 2;//change this everytime updating the app
             String versionURL = "http://13.58.202.127/cse13android/version.php";
             try {
                 HttpClient httpclient = new DefaultHttpClient();
