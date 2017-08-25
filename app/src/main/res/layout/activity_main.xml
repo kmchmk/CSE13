@@ -19,33 +19,20 @@
     </WebView>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/loggingfb"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="15dp"
-        android:layout_marginRight="15dp"
-        android:src="@android:drawable/ic_lock_power_off"
-        app:backgroundTint="@android:color/background_light"
-        app:borderWidth="0dp"
-        app:elevation="8dp"
-        app:fabSize="normal"
-        tools:ignore="RelativeOverlap" />
-
-    <android.support.design.widget.FloatingActionButton
         android:id="@+id/settingsfb"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_marginBottom="15dp"
-        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
         android:src="@android:drawable/ic_menu_preferences"
         app:backgroundTint="@android:color/background_light"
         app:borderWidth="0dp"
         app:elevation="8dp"
-        app:fabSize="normal"
+        app:fabSize="mini"
         tools:ignore="RelativeOverlap" />
 
 </RelativeLayout>
