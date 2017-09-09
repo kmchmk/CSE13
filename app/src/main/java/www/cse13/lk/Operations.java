@@ -1,4 +1,4 @@
-package lk.cse13.www.cse13;
+package www.cse13.lk;
 
 import android.content.Context;
 
@@ -21,7 +21,7 @@ class Operations {
                 ret = bufferedReader.readLine();
                 inputStream.close();
             }
-        } catch (IOException e) {
+        } catch (IOException ignored) {
         }
         return ret;
     }

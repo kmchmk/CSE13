@@ -1,4 +1,4 @@
-package lk.cse13.www.cse13;
+package www.cse13.lk;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -17,6 +17,7 @@ import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import org.apache.http.util.EncodingUtils;
+
 
 
 public class MainActivity extends AppCompatActivity {
@@ -57,19 +58,19 @@ public class MainActivity extends AppCompatActivity {
         String index = Operations.readFromFile("ind");
         String password = Operations.readFromFile("psd");
         String postData = "index=" + index + "&pw=" + password;
-        webview.postUrl("http://www.cse13.lk/ctrl/setSession.php", EncodingUtils.getBytes(postData, "BASE64"));
+        webview.postUrl("http://www.www.cse13.lk.lk/ctrl/setSession.php", EncodingUtils.getBytes(postData, "BASE64"));
     }
 
     private class MyBrowser extends WebViewClient {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if (url.equals("http://www.cse13.lk/signin.php")) {
+            if (url.equals("http://www.www.cse13.lk.lk/signin.php")) {
                 Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
                 Bundle b = new Bundle();
                 b.putString("msg", "none");
                 i.putExtras(b);
                 startActivity(i);
-            } else if (url.equals("http://www.cse13.lk/signin.php?msg=error")) {
+            } else if (url.equals("http://www.www.cse13.lk.lk/signin.php?msg=error")) {
                 Intent i = new Intent(getApplicationContext(), SettingsActivity.class);
                 Bundle b = new Bundle();
                 b.putString("msg", "error");
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(i);
             }
 
-            if (Uri.parse(url).getHost().equals("www.cse13.lk")) {
+            if (Uri.parse(url).getHost().equals("www.www.cse13.lk.lk")) {
                 return false;
             } else {
                 view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
